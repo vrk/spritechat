@@ -18,15 +18,21 @@ class Room {
     }
     // Connection opened
     this._socket.send(JSON.stringify(outMessage));
+
+    const container = document.querySelector('#room');
+    container.classList.remove('hidden');
   }
 
   _onReceiveServerMessage(event) {
     const message = JSON.parse(event.data);
-    if (message.action !== 'chat') {
-      return;
+    if (message.action === 'chat' && message.username !== this._username) {
+      this._logMessage(message);
+    } else if (message.action === 'entered') {
+      console.log(message);
+      for (const line of message.messageLog) {
+        this._logMessage(JSON.parse(line));
+      }
     }
-    this._logMessage(message);
-
   }
 
   _logMessage(message) {

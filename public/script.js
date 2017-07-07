@@ -11,6 +11,8 @@ class App {
   }
 
   _onRoomEnter(username) {
+    const container = document.querySelector('#menu');
+    container.classList.add('hidden');
     this._room = new Room(username, this._socket);
   }
 }

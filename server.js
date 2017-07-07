@@ -9,31 +9,46 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 app.use(express.static('public'));
-//
-// wss.broadcast = function broadcast(data) {
-//   wss.clients.forEach(function each(client) {
-//     if (client.readyState === WebSocket.OPEN) {
-//       client.send(data);
-//     }
-//   });
-// };
-//
+
+const users = [];
+const messageLog = [];
+
+const onUserEnter = (ws, messageInfo) => {
+  // TODO: Handle exits
+  users.push(messageInfo.username);
+  ws.send(JSON.stringify({
+    action: 'entered',
+    users,
+    messageLog
+  }));
+};
+
+const broadcastMessage = (message) => {
+  messageLog.push(message);
+  wss.clients.forEach(function each(client) {
+    client.send(message);
+  });
+};
+
 wss.on('connection', function connection(ws, req) {
   const location = url.parse(req.url, true);
-  // You might use location.query.access_token to authenticate or share sessions
-  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-  console.log(`connected: ${location}`);
+  console.log(`connected: ${JSON.stringify(location)}`);
 
-  ws.on('message', function incoming(message) {
-    console.log('received: %s', message);
-    wss.clients.forEach(function each(client) {
-      if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(message);
-      }
-    });
+  ws.on('message', function (data) {
+    console.log('received: %s', data);
+    const messageInfo = JSON.parse(data);
+    switch (messageInfo.action) {
+      case 'enter':
+        onUserEnter(ws, messageInfo);
+        break;
+      case 'chat':
+        broadcastMessage(data);
+        break;
+      default:
+    }
   });
 
-  ws.send('ack');
+  ws.send('connected');
 });
 
 server.listen(8080, function listening() {
