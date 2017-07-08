@@ -2,7 +2,7 @@
 class App {
   constructor() {
     this._onRoomEnter = this._onRoomEnter.bind(this);
-    this._socket = new WebSocket('ws://localhost:8080');
+    this._socket = new WebSocket(`ws://${location.hostname}:8080`);
 
     // TODO: Open the socket, then show the menu.
     this._socket.addEventListener('open', (event) => {
