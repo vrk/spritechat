@@ -14,7 +14,6 @@ const users = [];
 const messageLog = [];
 
 const onUserEnter = (ws, messageInfo) => {
-  // TODO(vrk): Handle exits
   let username = messageInfo.username;
 
   let n = 1;
