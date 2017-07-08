@@ -31,7 +31,6 @@ class Room {
         this._logChatMessage(message);
       }
     } else if (message.action === 'entered') {
-      console.assert(message.username !== this._username);
       this._username = message.username;
       this._users = message.users;
       console.log(this._users);
