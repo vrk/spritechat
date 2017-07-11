@@ -20,7 +20,6 @@ class Game {
     this.backCanvas.height = CANVAS_HEIGHT;
     this.backContext = this.backCanvas.getContext('2d');
 
-
     this._socket = socket;
     this.player = new Player(this.context, socket);
     this.others = {};

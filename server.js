@@ -64,7 +64,6 @@ const onUserLook = (ws, message) => {
   broadcastMessage(message);
 };
 
-
 const onUserExit = (username) => {
   delete users[username];
   broadcastMessage({

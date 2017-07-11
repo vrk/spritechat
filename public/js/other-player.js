@@ -10,6 +10,8 @@ class OtherPlayer extends BasePlayer {
   _onReceiveServerMessage(event) {
     const message = JSON.parse(event.data);
     if (message.action === 'move' && message.username === this._username) {
+      this.xVelocity = message.xVelocity;
+      this.yVelocity = message.yVelocity;
       this.x = message.x;
       this.y = message.y;
       this.direction = message.direction;

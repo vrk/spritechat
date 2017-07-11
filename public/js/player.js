@@ -36,17 +36,19 @@ class Player extends BasePlayer {
 
   update() {
     super.update();
-    this.x += this.xVelocity;
-    this.y += this.yVelocity;
-
-    const outMessage = {
-      action: 'move',
-      username: this._username,
-      direction: this.direction,
-      x: this.x,
-      y: this.y
-    };
-    this._socket.send(JSON.stringify(outMessage));
+    if (this.needsUpdate) {
+      this.needsUpdate = false;
+      const outMessage = {
+        action: 'move',
+        username: this._username,
+        direction: this.direction,
+        xVelocity: this.xVelocity,
+        yVelocity: this.yVelocity,
+        x: this.x,
+        y: this.y
+      };
+      this._socket.send(JSON.stringify(outMessage));
+    }
   }
 
   changeLook() {

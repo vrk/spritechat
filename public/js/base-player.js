@@ -13,6 +13,8 @@ class BasePlayer {
   }
 
   update() {
+    this.x += this.xVelocity;
+    this.y += this.yVelocity;
     this.characters[this.selectedCharacter].update(this.direction);
   }
 
