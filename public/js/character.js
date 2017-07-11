@@ -23,6 +23,32 @@ class Character {
   }
 }
 
+class Cappy extends Character {
+  constructor(context) {
+    super();
+    const image = new Image();
+    image.src = 'images/cappy-sheet.png';
+
+    this.downSprite = new Sprite(context, 34, 34, 2, 62, 4, image);
+    this.upSprite = new Sprite(context, 34, 34, 2, 62+69, 4, image);
+    this.leftSprite = new Sprite(context, 33, 34, 2+285, 62+34, 4, image);
+    this.rightSprite = new Sprite(context, 33, 34, 2, 62+34, 4, image);
+  }
+}
+
+class Boss extends Character {
+  constructor(context) {
+    super();
+    const image = new Image();
+    image.src = 'images/boss-sheet.png';
+
+    this.downSprite = new Sprite(context, 36, 34, 0, 64, 4, image);
+    this.upSprite = new Sprite(context, 36, 34, 148, 64, 4, image);
+    this.leftSprite = new Sprite(context, 34, 34, 3+142, 64+34, 4, image);
+    this.rightSprite = new Sprite(context, 34, 34, 3, 64+34, 4, image);
+  }
+}
+
 class Bijou extends Character {
   constructor(context) {
     super();
