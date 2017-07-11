@@ -98,7 +98,7 @@ wss.on('connection', function connection(ws, req) {
     }
   });
 
-  ws.send('connected');
+  ws.send(JSON.stringify({ status: 'connected' }));
 });
 
 server.listen(process.env.PORT || 8080, function listening() {
