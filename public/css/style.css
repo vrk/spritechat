@@ -31,3 +31,14 @@ body {
 #message-form {
   padding: 10px;
 }
+
+#foreground,
+#background {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#foreground {
+  z-index: 10;
+}
