@@ -1,5 +1,3 @@
-const PLAYER_PX_UPDATES_PER_TICK = 2;
-
 class Player {
   constructor(context, socket, username='bijou') {
     this.onKeyDown = this.onKeyDown.bind(this);
@@ -35,33 +33,25 @@ class Player {
   }
 
   _onReceiveServerMessage(event) {
-    console.log(event.data);
     const message = JSON.parse(event.data);
     if (message.action === 'entered') {
       this._username = message.username;
     }
   }
 
-
   update() {
     this.x += this.xVelocity;
     this.y += this.yVelocity;
     this.character.update(this.direction);
 
-    if (this.needsUpdate) {
-      this.needsUpdate = false;
-      console.log('diff');
-      const outMessage = {
-        action: 'move',
-        username: this._username,
-        direction: this.direction,
-        xVelocity: this.xVelocity,
-        yVelocity: this.yVelocity
-      };
-      requestAnimationFrame( () => {
-        this._socket.send(JSON.stringify(outMessage));
-      });
-    }
+    const outMessage = {
+      action: 'move',
+      username: this._username,
+      direction: this.direction,
+      x: this.x,
+      y: this.y
+    };
+    this._socket.send(JSON.stringify(outMessage));
   }
 
   render() {

@@ -52,6 +52,11 @@ const onUserChat = (ws, message) => {
   broadcastMessage(message);
 };
 
+const onUserMove = (ws, message) => {
+  broadcastMessage(message);
+};
+
+
 const onUserExit = (username) => {
   const index = users.indexOf(username);
   users.splice(index, 1);
@@ -93,6 +98,9 @@ wss.on('connection', function connection(ws, req) {
         break;
       case 'chat':
         onUserChat(ws, messageInfo);
+        break;
+      case 'move':
+        onUserMove(ws, messageInfo);
         break;
       default:
     }
