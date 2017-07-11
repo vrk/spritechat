@@ -1,5 +1,6 @@
-class Player {
+class Player extends BasePlayer {
   constructor(context, socket, username='bijou') {
+    super(context, username);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onKeyUp = this.onKeyUp.bind(this);
     this._onReceiveServerMessage = this._onReceiveServerMessage.bind(this);
@@ -7,21 +8,12 @@ class Player {
     document.addEventListener('keyup', this.onKeyUp);
     document.addEventListener('keydown', this.onKeyDown);
 
-    this.xVelocity = 0;
-    this.yVelocity = 0;
-    this.x = 0;
-    this.y = 0;
     this.arrowsPressed = [];
 
     this.prevDir = null;
     this.prevXVelocity = null;
     this.prevYVelocity = null;
-    this._username = username;
 
-    this.context = context;
-    this.characters = [new Bijou(context), new Boss(context)];
-    this.selectedCharacter = 0;
-    this.direction = MOVE_DOWN;
     this.needsUpdate = true;
 
     this._socket = socket;
@@ -43,9 +35,9 @@ class Player {
   }
 
   update() {
+    super.update();
     this.x += this.xVelocity;
     this.y += this.yVelocity;
-    this.characters[this.selectedCharacter].update(this.direction);
 
     const outMessage = {
       action: 'move',
@@ -55,10 +47,6 @@ class Player {
       y: this.y
     };
     this._socket.send(JSON.stringify(outMessage));
-  }
-
-  render() {
-    this.characters[this.selectedCharacter].render(this.x, this.y);
   }
 
   changeLook() {
