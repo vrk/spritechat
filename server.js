@@ -90,7 +90,6 @@ wss.on('connection', function connection(ws, req) {
   });
 
   ws.on('message', function (data) {
-    console.log('received: %s', data);
     const messageInfo = JSON.parse(data);
     switch (messageInfo.action) {
       case 'enter':
