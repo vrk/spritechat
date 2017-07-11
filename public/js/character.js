@@ -31,7 +31,7 @@ class Cappy extends Character {
 
     this.downSprite = new Sprite(context, 34, 34, 2, 62, 4, image);
     this.upSprite = new Sprite(context, 34, 34, 2, 62+69, 4, image);
-    this.leftSprite = new Sprite(context, 33, 34, 2+285, 62+34, 4, image);
+    this.leftSprite = new Sprite(context, 33, 34, 2+284, 62+34, 4, image);
     this.rightSprite = new Sprite(context, 33, 34, 2, 62+34, 4, image);
   }
 }

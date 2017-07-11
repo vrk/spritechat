@@ -14,7 +14,7 @@ class Player {
     this.y = 0;
     this.arrowsPressed = [];
 
-    this.character = new Cappy(context);
+    this.character = new Bijou(context);
     this.direction = MOVE_DOWN;
   }
 
