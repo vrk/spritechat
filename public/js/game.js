@@ -21,12 +21,12 @@ class Game {
     const message = JSON.parse(event.data);
     if (message.action === 'entered') {
       this._username = message.username;
-      for (const playerName of message.users) {
+      for (const playerName in message.users) {
+        const playerInfo = message.users[playerName];
         if (this._username !== playerName) {
-          this.others[playerName] = new OtherPlayer(this.context, this._socket, playerName);
+          this.others[playerName] = new OtherPlayer(this.context, this._socket, playerName, playerInfo.x, playerInfo.y);
         }
       }
-      console.log(`in the chat room: ${message.users.join(', ')}`);
     } if (message.action === 'announce-enter') {
       if (message.username !== this._username) {
         this.others[message.username] = new OtherPlayer(this.context, this._socket, message.username);
@@ -37,7 +37,6 @@ class Game {
       console.log(`${message.username} has left`);
     }
   }
-
 
   startGameLoop() {
     const gameLoop = () => {

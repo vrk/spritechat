@@ -16,6 +16,7 @@ class Player {
     this.prevDir = null;
     this.prevXVelocity = null;
     this.prevYVelocity = null;
+    this._username = username;
 
     this.character = new Bijou(context);
     this.direction = MOVE_DOWN;

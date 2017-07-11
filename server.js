@@ -10,18 +10,19 @@ const wss = new WebSocket.Server({ server });
 
 app.use(express.static('public'));
 
-const users = [];
+const users = {};
 const messageLog = [];
 
 const onUserEnter = (ws, messageInfo) => {
+  console.log('ON USER ENTER');
   let username = messageInfo.username;
 
   let n = 1;
-  while (users.includes(username)) {
+  while (Object.keys(users).includes(username)) {
     username = `${messageInfo.username}${n}`;
     n++;
   }
-  users.push(username);
+  users[username] = {};
   ws.username = username;
   const message = {
     action: 'entered',
@@ -53,13 +54,14 @@ const onUserChat = (ws, message) => {
 };
 
 const onUserMove = (ws, message) => {
+  users[message.username].x = message.x;
+  users[message.username].y = message.y;
   broadcastMessage(message);
 };
 
 
 const onUserExit = (username) => {
-  const index = users.indexOf(username);
-  users.splice(index, 1);
+  delete users[username];
   broadcastMessage({
     action: 'announce-exit',
     username
