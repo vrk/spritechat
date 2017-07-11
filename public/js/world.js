@@ -1,7 +1,6 @@
 class World {
   constructor(context) {
     this.painter = new GrassPainter(context);
-
   }
 
   render() {

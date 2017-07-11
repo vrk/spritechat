@@ -18,7 +18,9 @@ class Player {
     this.prevYVelocity = null;
     this._username = username;
 
-    this.character = new Bijou(context);
+    this.context = context;
+    this.characters = [new Bijou(context), new Boss(context)];
+    this.selectedCharacter = 0;
     this.direction = MOVE_DOWN;
     this.needsUpdate = true;
 
@@ -43,7 +45,7 @@ class Player {
   update() {
     this.x += this.xVelocity;
     this.y += this.yVelocity;
-    this.character.update(this.direction);
+    this.characters[this.selectedCharacter].update(this.direction);
 
     const outMessage = {
       action: 'move',
@@ -56,7 +58,21 @@ class Player {
   }
 
   render() {
-    this.character.render(this.x, this.y);
+    this.characters[this.selectedCharacter].render(this.x, this.y);
+  }
+
+  changeLook() {
+    this.selectedCharacter = (this.selectedCharacter + 1) % this.characters.length;
+    const outMessage = {
+      action: 'look',
+      username: this._username,
+      selectedCharacter: this.selectedCharacter
+    };
+    this._socket.send(JSON.stringify(outMessage));
+  }
+
+  dance() {
+
   }
 
   // Private

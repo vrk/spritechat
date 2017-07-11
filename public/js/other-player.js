@@ -1,5 +1,5 @@
 class OtherPlayer {
-  constructor(context, socket, username, initialX = 0, initialY = 0) {
+  constructor(context, socket, username, initialX = 0, initialY = 0, selectedCharacter = 0) {
     this._onReceiveServerMessage = this._onReceiveServerMessage.bind(this);
 
     this.xVelocity = 0;
@@ -13,7 +13,8 @@ class OtherPlayer {
     this._username = username;
     this.prevYVelocity = null;
 
-    this.character = new Bijou(context);
+    this.characters = [new Bijou(context), new Boss(context)];
+    this.selectedCharacter = selectedCharacter;
     this.direction = MOVE_DOWN;
     this.needsUpdate = true;
 
@@ -27,14 +28,16 @@ class OtherPlayer {
       this.x = message.x;
       this.y = message.y;
       this.direction = message.direction;
+    } else if (message.action === 'look' && message.username === this._username) {
+      this.selectedCharacter = message.selectedCharacter;
     }
   }
 
   update() {
-    this.character.update(this.direction);
+    this.characters[this.selectedCharacter].update(this.direction);
   }
 
   render() {
-    this.character.render(this.x, this.y);
+    this.characters[this.selectedCharacter].render(this.x, this.y);
   }
 }

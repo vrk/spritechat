@@ -2,6 +2,12 @@ class Game {
   constructor(socket) {
     this.startGameLoop = this.startGameLoop.bind(this);
     this._onReceiveServerMessage = this._onReceiveServerMessage.bind(this);
+    this._onDanceClick = this._onDanceClick.bind(this);
+    this._onLookClick = this._onLookClick.bind(this);
+
+    this.container = document.querySelector('#world-container');
+    this.container.style.width = CANVAS_WIDTH + 'px';
+    this.container.style.height = CANVAS_HEIGHT + 'px';
 
     this.canvas = document.querySelector('#foreground');
     this.canvas.width = CANVAS_WIDTH;
@@ -14,12 +20,26 @@ class Game {
     this.backCanvas.height = CANVAS_HEIGHT;
     this.backContext = this.backCanvas.getContext('2d');
 
+
     this._socket = socket;
     this.player = new Player(this.context, socket);
     this.others = {};
     this.world = new World(this.backContext);
 
+    // const danceButton = document.querySelector('#dance-button');
+    // danceButton.addEventListener('click', this._onDanceClick);
+
+    const lookButton = document.querySelector('#look-button');
+    lookButton.addEventListener('click', this._onLookClick);
     this._socket.addEventListener('message', this._onReceiveServerMessage);
+  }
+
+  _onLookClick() {
+    this.player.changeLook();
+  }
+
+  _onDanceClick() {
+    this.player.dance();
   }
 
   _onReceiveServerMessage(event) {
@@ -29,7 +49,7 @@ class Game {
       for (const playerName in message.users) {
         const playerInfo = message.users[playerName];
         if (this._username !== playerName) {
-          this.others[playerName] = new OtherPlayer(this.context, this._socket, playerName, playerInfo.x, playerInfo.y);
+          this.others[playerName] = new OtherPlayer(this.context, this._socket, playerName, playerInfo.x, playerInfo.y, playerInfo.selectedCharacter);
         }
       }
     } if (message.action === 'announce-enter') {

@@ -59,6 +59,11 @@ const onUserMove = (ws, message) => {
   broadcastMessage(message);
 };
 
+const onUserLook = (ws, message) => {
+  users[message.username].selectedCharacter = message.selectedCharacter;
+  broadcastMessage(message);
+};
+
 
 const onUserExit = (username) => {
   delete users[username];
@@ -102,6 +107,9 @@ wss.on('connection', function connection(ws, req) {
         break;
       case 'move':
         onUserMove(ws, messageInfo);
+        break;
+      case 'look':
+        onUserLook(ws, messageInfo);
         break;
       default:
     }

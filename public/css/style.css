@@ -42,3 +42,7 @@ body {
 #foreground {
   z-index: 10;
 }
+
+#world-container {
+  position: relative;
+}
