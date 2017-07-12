@@ -74,7 +74,7 @@ class DataChannelManager {
         }
         pcInfo.pendingIceCandidates = [];
       } else if (message.action === 'ice') {
-        const pcInfo = this.peerConnections[message.username];
+        const pcInfo = this.onJoinPeerConnections[message.username];
         console.log(pcInfo);
         const candidate = new RTCIceCandidate(message.candidate);
         if (pcInfo.hasSpd) {
