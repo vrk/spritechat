@@ -10,6 +10,7 @@ class BasePlayer {
     this.characters = [new Bijou(context), new Boss(context)];
     this.selectedCharacter = selectedCharacter;
     this.direction = initialDir;
+    this.dataChannels = [];
   }
 
   update() {
@@ -23,6 +24,6 @@ class BasePlayer {
   }
 
   setDataChannel(channel) {
-    this.dataChannel = channel;
+    this.dataChannels.push(channel);
   }
 }

@@ -47,11 +47,19 @@ class Player extends BasePlayer {
         x: this.x,
         y: this.y
       };
-      if (this.dataChannel) {
+
+      this.dataChannels = this.dataChannels.filter(c => c.readyState === 'open');
+      for (const dataChannel of this.dataChannels) {
         console.log('sending over data channel!');
-        this.dataChannel.send(JSON.stringify(outMessage));
+        dataChannel.send(JSON.stringify(outMessage));
       }
     }
+  }
+
+  setDataChannel(channel) {
+    super.setDataChannel(channel);
+    this.needsUpdate = true;
+    this.update();
   }
 
   changeLook() {

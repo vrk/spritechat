@@ -1,9 +1,8 @@
-
-
 class Game {
   constructor(socket) {
     this.startGameLoop = this.startGameLoop.bind(this);
     this._onReceiveServerMessage = this._onReceiveServerMessage.bind(this);
+    this.onNewDataChannel = this.onNewDataChannel.bind(this);
     this._onDanceClick = this._onDanceClick.bind(this);
     this._onLookClick = this._onLookClick.bind(this);
 
@@ -62,26 +61,23 @@ class Game {
       console.log(`${message.username} has entered`);
 
       if (!this.peerConnectionManager) {
-        if (Object.keys(this.others).length === 0) {
-          console.log('I HAVE STARTED THIS PARTY');
-          this.peerConnectionManager = new PartyStarter(this._socket, this._username);
-          this.peerConnectionManager.listenForNewUser();
-        } else {
-          console.log('I HAVE JOINED THIS PARTY');
-          this.peerConnectionManager = new PartyJoiner(this._socket, this._username);
-          this.peerConnectionManager.kickoffParty();
-        }
+        const createdParty = Object.keys(this.others).length === 0;
+        this.peerConnectionManager =
+            new DataChannelManager(this._socket, this._username, createdParty, this.onNewDataChannel);
       }
 
     } else if (message.action === 'announce-exit') {
       delete this.others[message.username];
       console.log(`${message.username} has left`);
-      if (this.others.length === 0) {
-        console.log('RESTARTING THIS PARTY');
-        delete this.peerConnectionManager;
-        this.peerConnectionManager = new PartyStarter(this._socket, this._username);
-        this.peerConnectionManager.listenForNewUser();
-      }
+    }
+  }
+
+  onNewDataChannel(channel) {
+    console.log('new channel');
+    this.player.setDataChannel(channel);
+    for (const playerName in this.others) {
+      const otherPlayer = this.others[playerName];
+      otherPlayer.setDataChannel(channel);
     }
   }
 

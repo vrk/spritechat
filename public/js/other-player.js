@@ -22,8 +22,10 @@ class OtherPlayer extends BasePlayer {
 
   setDataChannel(channel) {
     super.setDataChannel(channel);
-    console.log('setting');
+    console.log('setting datachannel');
     channel.onmessage = this._onReceiveServerMessage;
+    this.needsUpdate = true;
+    this.update();
   }
 
   _onReceiveServerMessage(event) {
