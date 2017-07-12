@@ -33,25 +33,25 @@ class DataChannelManager {
       }
 
       let peerConnection;
-      if (!this.peerConnections[message.username]) {
+      if (!this.onJoinPeerConnections[message.username]) {
         peerConnection = this.createPeerConnection(message.username);
-        this.peerConnections[message.username] = {
+        this.onJoinPeerConnections[message.username] = {
           peerConnection,
           hasSpd: false,
           pendingIceCandidates: []
         };
-        console.log(this.peerConnections);
+        console.log(this.onJoinPeerConnections);
         peerConnection.ondatachannel = receiveDataChannel;
       }
-      console.log(this.peerConnections[message.username]);
-      peerConnection = this.peerConnections[message.username].peerConnection;
+      console.log(this.onJoinPeerConnections[message.username]);
+      peerConnection = this.onJoinPeerConnections[message.username].peerConnection;
       console.log(message.action);
       console.log(peerConnection);
 
       if (message.action === 'sdp-offer') {
         console.log('ok, the host invited me!')
         await peerConnection.setRemoteDescription(new RTCSessionDescription(message.sdp));
-        const pcInfo = this.peerConnections[message.username];
+        const pcInfo = this.onJoinPeerConnections[message.username];
         console.assert(peerConnection.remoteDescription.type === 'offer');
         console.log("I'll give them my answer");
         const desc = await peerConnection.createAnswer();
