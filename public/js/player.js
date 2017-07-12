@@ -47,7 +47,10 @@ class Player extends BasePlayer {
         x: this.x,
         y: this.y
       };
-      this._socket.send(JSON.stringify(outMessage));
+      if (this.dataChannel) {
+        console.log('sending over data channel!');
+        this.dataChannel.send(JSON.stringify(outMessage));
+      }
     }
   }
 

@@ -21,4 +21,8 @@ class BasePlayer {
   render() {
     this.characters[this.selectedCharacter].render(this.x, this.y);
   }
+
+  setDataChannel(channel) {
+    this.dataChannel = channel;
+  }
 }

@@ -64,6 +64,15 @@ const onUserLook = (ws, message) => {
   broadcastMessage(message);
 };
 
+const onSignalling = (ws, message) => {
+  wss.clients.forEach(function each(client) {
+    if (client.username !== ws.username) {
+      console.log(client.username);
+      client.send(JSON.stringify(message));
+    }
+  });
+};
+
 const onUserExit = (username) => {
   delete users[username];
   broadcastMessage({
@@ -110,11 +119,21 @@ wss.on('connection', function connection(ws, req) {
       case 'look':
         onUserLook(ws, messageInfo);
         break;
+      case 'ice':
+      case 'signal':
+      case 'sdp':
+        onSignalling(ws, messageInfo);
+        break;
       default:
     }
   });
 
-  ws.send(JSON.stringify({ status: 'connected' }));
+  let isInitial = false;
+  if (Object.keys(users).length === 1) {
+    isInitial = true;
+  }
+
+  ws.send(JSON.stringify({ action: 'connected', isInitial }));
 });
 
 server.listen(process.env.PORT || 8080, function listening() {
