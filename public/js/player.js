@@ -69,7 +69,11 @@ class Player extends BasePlayer {
       username: this._username,
       selectedCharacter: this.selectedCharacter
     };
-    this._socket.send(JSON.stringify(outMessage));
+    this.dataChannels = this.dataChannels.filter(c => c.readyState === 'open');
+    for (const dataChannel of this.dataChannels) {
+      console.log('sending over data channel!');
+      dataChannel.send(JSON.stringify(outMessage));
+    }
   }
 
   dance() {
