@@ -17,6 +17,9 @@ class DataChannelManager {
     this.peerConnections = [];
     this.onJoinPeerConnections = {};
   }
+  remove(name) {
+    delete this.onJoinPeerConnections[name];
+  }
 
   kickoffParty() {
     console.assert(!this.createdParty);
@@ -103,7 +106,10 @@ class DataChannelManager {
       console.log('received a data channel from the party host!');
       const channel = event.channel;
       this.addDataChannel(channel);
-      this.listenForNewUser();
+      if (!this.isListening) {
+        this.isListening = true;
+        this.listenForNewUser();
+      }
     };
 
   }

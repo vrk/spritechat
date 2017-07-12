@@ -69,6 +69,7 @@ class Game {
     } else if (message.action === 'announce-exit') {
       delete this.others[message.username];
       console.log(`${message.username} has left`);
+      this.peerConnectionManager.remove(message.username);
     }
   }
 
