@@ -121,7 +121,9 @@ wss.on('connection', function connection(ws, req) {
         break;
       case 'ice':
       case 'signal':
-      case 'sdp':
+      case 'sdp-offer':
+      case 'sdp-answer':
+        console.log(messageInfo.action);
         onSignalling(ws, messageInfo);
         break;
       default:
