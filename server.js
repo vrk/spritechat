@@ -14,7 +14,6 @@ const users = {};
 const messageLog = [];
 
 const onUserEnter = (ws, messageInfo) => {
-  console.log('ON USER ENTER');
   let username = messageInfo.username;
 
   let n = 1;
@@ -67,7 +66,6 @@ const onUserLook = (ws, message) => {
 const onSignalling = (ws, message) => {
   wss.clients.forEach(function each(client) {
     if (client.username !== ws.username) {
-      console.log(client.username);
       client.send(JSON.stringify(message));
     }
   });
@@ -123,7 +121,6 @@ wss.on('connection', function connection(ws, req) {
       case 'signal':
       case 'sdp-offer':
       case 'sdp-answer':
-        console.log(messageInfo.action);
         onSignalling(ws, messageInfo);
         break;
       default:

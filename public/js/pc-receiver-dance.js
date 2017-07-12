@@ -39,7 +39,6 @@ class DataChannelManager {
     // Now listen for replies to our kick-off message...
     const joinerOnReceiveMessages = async (event) => {
       const message = JSON.parse(event.data);
-      console.log(message);
       if (message.target !== this._username) {
         return;
       }
@@ -72,8 +71,6 @@ class DataChannelManager {
           action: 'sdp-answer'
         };
         this._socket.send(JSON.stringify(outMessage));
-        console.log('---');
-        console.log(pcInfo.pendingIceCandidates);
 
         pcInfo.hasSpd = true;
         for (const candidate of pcInfo.pendingIceCandidates) {
@@ -85,8 +82,6 @@ class DataChannelManager {
         }
         pcInfo.pendingIceCandidates = [];
       } else if (message.action === 'ice') {
-        console.log(this.peerConnections[message.username]);
-        console.log(message.username);
         const pcInfo = this.peerConnections[message.username];
         const candidate = new RTCIceCandidate(message.candidate);
         if (pcInfo.hasSpd) {
@@ -160,7 +155,6 @@ class DataChannelManager {
           candidate: evt.candidate,
           action: 'ice'
         };
-        console.log(outMessage);
         this._socket.send(JSON.stringify(outMessage));
       }
     }

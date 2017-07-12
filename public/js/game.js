@@ -54,8 +54,6 @@ class Game {
           this.others[playerName] = new OtherPlayer(this.context, this._socket, playerName, playerInfo.x, playerInfo.y, playerInfo.selectedCharacter);
         }
       }
-      console.log('1111');
-      console.log(this.others);
     } if (message.action === 'announce-enter') {
       if (message.username !== this._username) {
         this.others[message.username] = new OtherPlayer(this.context, this._socket, message.username);
