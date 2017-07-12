@@ -14,54 +14,46 @@ class DataChannelManager {
     }
 
     this.dataChannels = [];
-    this.peerConnections = {};
+    this.peerConnections = [];
+    this.onJoinPeerConnections = {};
   }
 
   kickoffParty() {
     console.assert(!this.createdParty);
 
-    console.log(`yoooo I'm ${this._username} and I just entered this thing!`);
-    console.log("going to let the host know I'm here...")
-    const kickoffMessage = {
-      username: this._username,
-      action: 'signal'
-    };
-    this._socket.send(JSON.stringify(kickoffMessage));
-
-    const receiveDataChannel = (event) => {
-      console.log('received a data channel from the party host!');
-      const channel = event.channel;
-      this.addDataChannel(channel);
-      this._socket.removeEventListener('message', joinerOnReceiveMessages);
-      this.listenForNewUser();
-    };
-
     // Now listen for replies to our kick-off message...
     const joinerOnReceiveMessages = async (event) => {
       const message = JSON.parse(event.data);
+      console.log('received message! ' + message.action);
       if (message.target !== this._username) {
+        return;
+      }
+      if (message.action !== 'sdp-offer' && message.action !== 'ice') {
         return;
       }
 
       let peerConnection;
-      if (message.action === 'sdp-offer' || message.action === 'ice') {
+      if (!this.peerConnections[message.username]) {
         peerConnection = this.createPeerConnection(message.username);
-        if (!this.peerConnections[message.username]) {
-          this.peerConnections[message.username] = {
-            peerConnection,
-            hasSpd: false,
-            pendingIceCandidates: []
-          };
-        }
+        this.peerConnections[message.username] = {
+          peerConnection,
+          hasSpd: false,
+          pendingIceCandidates: []
+        };
+        console.log(this.peerConnections);
         peerConnection.ondatachannel = receiveDataChannel;
       }
+      console.log(this.peerConnections[message.username]);
+      peerConnection = this.peerConnections[message.username].peerConnection;
+      console.log(message.action);
+      console.log(peerConnection);
 
       if (message.action === 'sdp-offer') {
         console.log('ok, the host invited me!')
         await peerConnection.setRemoteDescription(new RTCSessionDescription(message.sdp));
         const pcInfo = this.peerConnections[message.username];
         console.assert(peerConnection.remoteDescription.type === 'offer');
-        console.log("I'll give them my answer")
+        console.log("I'll give them my answer");
         const desc = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(desc);
         const outMessage = {
@@ -83,6 +75,7 @@ class DataChannelManager {
         pcInfo.pendingIceCandidates = [];
       } else if (message.action === 'ice') {
         const pcInfo = this.peerConnections[message.username];
+        console.log(pcInfo);
         const candidate = new RTCIceCandidate(message.candidate);
         if (pcInfo.hasSpd) {
           try {
@@ -97,6 +90,22 @@ class DataChannelManager {
     };
     // Listen for replies
     this._socket.addEventListener('message', joinerOnReceiveMessages);
+
+    console.log(`yoooo I'm ${this._username} and I just entered this thing!`);
+    console.log("going to let the host know I'm here...")
+    const kickoffMessage = {
+      username: this._username,
+      action: 'signal'
+    };
+    this._socket.send(JSON.stringify(kickoffMessage));
+
+    const receiveDataChannel = (event) => {
+      console.log('received a data channel from the party host!');
+      const channel = event.channel;
+      this.addDataChannel(channel);
+      this.listenForNewUser();
+    };
+
   }
 
   listenForNewUser() {
