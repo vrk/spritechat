@@ -45,6 +45,10 @@ class DataChannelManager {
         };
         console.log(this.onJoinPeerConnections);
         peerConnection.ondatachannel = receiveDataChannel;
+        const guestName = message.username;
+        const channelName = `${this._username}-${guestName}`;
+        const dataChannel = peerConnection.createDataChannel(channelName, dataChannelOptions);
+        this.addDataChannel(dataChannel);
       }
       console.log(this.onJoinPeerConnections[message.username]);
       peerConnection = this.onJoinPeerConnections[message.username].peerConnection;
@@ -124,6 +128,9 @@ class DataChannelManager {
         const guestName = message.username;
         peerConnection = this.createPeerConnection(guestName);
         this.peerConnections[guestName] = peerConnection;
+        const channelName = `${this._username}-${guestName}`;
+        const dataChannel = peerConnection.createDataChannel(channelName, dataChannelOptions);
+        this.addDataChannel(dataChannel);
         peerConnection.onnegotiationneeded = async () => {
           console.log('Going to send my guest an offer w/ my local description.');
           const desc = await peerConnection.createOffer();
@@ -138,9 +145,6 @@ class DataChannelManager {
           console.log(outMessage);
           this._socket.send(JSON.stringify(outMessage));
         };
-        const channelName = `${this._username}-${guestName}`;
-        const dataChannel = peerConnection.createDataChannel(channelName, dataChannelOptions);
-        this.addDataChannel(dataChannel);
       } else if (message.action === 'sdp-answer' && message.target === this._username) {
         console.log('The guest answered! I set remote and then done.');
         await peerConnection.setRemoteDescription(new RTCSessionDescription(message.sdp));
