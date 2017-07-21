@@ -15,9 +15,14 @@ const CANVAS_WIDTH = WORLD_COLUMNS * TILE_SIZE;
 const PLAYER_PX_UPDATES_PER_TICK = 2;
 
 const configuration = {
-	'iceServers': [{
-		'url': 'stun:stun.l.google.com:19302'
-	}]
+  'iceServers': [
+  {
+    'urls': ['turn:numb.viagenie.ca']  ,
+    credential: 'ohbotherohbother',
+    username: 'victoriakirst@gmail.com'
+  },{
+  'urls': ['stun:stun.l.google.com:19302']
+  }]
 };
 
 const dataChannelOptions = {

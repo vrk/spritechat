@@ -1,3 +1,4 @@
+let GLOB = null;
 class DataChannelManager {
   constructor(socket, username, createdParty = false, onNewDataChannel) {
     this._socket = socket;
@@ -21,6 +22,36 @@ class DataChannelManager {
     delete this.onJoinPeerConnections[name];
   }
 
+  async tryAddIceCandidates(message) {
+    const pcInfo = this.onJoinPeerConnections[message.username];
+    if (!pcInfo.hasSpd || pcInfo.waitingForCandidates) {
+      console.log('Can I add ice candidates? NO');
+      return;
+    }
+    console.log('Can I add ice candidates? YES');
+
+    for (const c of pcInfo.pendingIceCandidates) {
+      try {
+        await pcInfo.peerConnection.addIceCandidate(c);
+        console.log('Adding ice succeeded.');
+      } catch(e) {
+        console.log(e);
+      }
+    }
+    pcInfo.pendingIceCandidates = [];
+
+    const peerConnection = pcInfo.peerConnection;
+    const desc = await peerConnection.createAnswer();
+    peerConnection.setLocalDescription(desc);
+    const outMessage = {
+      sdp: peerConnection.localDescription.sdp,
+      username: this._username,
+      target: message.username,
+      action: 'sdp-answer'
+    };
+    this._socket.send(JSON.stringify(outMessage));
+  }
+
   kickoffParty() {
     console.assert(!this.createdParty);
 
@@ -31,7 +62,8 @@ class DataChannelManager {
       if (message.target !== this._username) {
         return;
       }
-      if (message.action !== 'sdp-offer' && message.action !== 'ice') {
+      if (message.action !== 'sdp-offer' && message.action !== 'ice' &&
+    message.action !== 'ice-complete') {
         return;
       }
 
@@ -41,6 +73,7 @@ class DataChannelManager {
         this.onJoinPeerConnections[message.username] = {
           peerConnection,
           hasSpd: false,
+          waitingForCandidates: true,
           pendingIceCandidates: []
         };
         console.log(this.onJoinPeerConnections);
@@ -57,42 +90,24 @@ class DataChannelManager {
 
       if (message.action === 'sdp-offer') {
         console.log('ok, the host invited me!')
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(message.sdp));
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(
+          { sdp: message.sdp, type: 'offer' }));
         const pcInfo = this.onJoinPeerConnections[message.username];
-        console.assert(peerConnection.remoteDescription.type === 'offer');
-        console.log("I'll give them my answer");
-        const desc = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(desc);
-        const outMessage = {
-          sdp: peerConnection.localDescription,
-          username: this._username,
-          target: message.username,
-          action: 'sdp-answer'
-        };
-        this._socket.send(JSON.stringify(outMessage));
-
         pcInfo.hasSpd = true;
-        for (const candidate of pcInfo.pendingIceCandidates) {
-          try {
-            await pcInfo.peerConnection.addIceCandidate(candidate);
-          } catch(e) {
-            console.log(e);
-          }
-        }
-        pcInfo.pendingIceCandidates = [];
-      } else if (message.action === 'ice') {
+        this.tryAddIceCandidates(message);
+      } else if (message.action === 'ice-complete') {
+        console.log('ice is complete!');
         const pcInfo = this.onJoinPeerConnections[message.username];
-        console.log(pcInfo);
-        const candidate = new RTCIceCandidate(message.candidate);
-        if (pcInfo.hasSpd) {
-          try {
-            await pcInfo.peerConnection.addIceCandidate(candidate);
-          } catch(e) {
-            console.log(e);
-          }
-        } else {
-          pcInfo.pendingIceCandidates.push(candidate);
-        }
+        pcInfo.waitingForCandidates = false;
+        this.tryAddIceCandidates(message);
+      } else if (message.action === 'ice') {
+        const candidate = new RTCIceCandidate( {
+          sdpMLineIndex: message.label,
+          candidate: message.candidate
+        });
+        const pcInfo = this.onJoinPeerConnections[message.username];
+        pcInfo.pendingIceCandidates.push(candidate);
+
       }
     };
     // Listen for replies
@@ -134,20 +149,24 @@ class DataChannelManager {
         peerConnection.onnegotiationneeded = async () => {
           console.log('Going to send my guest an offer w/ my local description.');
           const desc = await peerConnection.createOffer();
-          await peerConnection.setLocalDescription(desc);
+          peerConnection.setLocalDescription(desc);
+          console.log(peerConnection.localDescription);
           const outMessage = {
-            sdp: peerConnection.localDescription,
+            sdp: peerConnection.localDescription.sdp,
             username: this._username,
             target: guestName,
             action: 'sdp-offer'
           };
           console.log('sending offer...');
           console.log(outMessage);
+          GLOB = outMessage;
+
           this._socket.send(JSON.stringify(outMessage));
         };
       } else if (message.action === 'sdp-answer' && message.target === this._username) {
         console.log('The guest answered! I set remote and then done.');
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(message.sdp));
+        await peerConnection.setRemoteDescription(
+          new RTCSessionDescription({ sdp: message.sdp, type: 'answer' }));
       }
     };
     this._socket.addEventListener('message', starterOnReceiveMessages);
@@ -165,14 +184,39 @@ class DataChannelManager {
 
   createPeerConnection(guestName) {
     const peerConnection = new RTCPeerConnection(configuration, null);
+    peerConnection.oniceconnectionstatechange = (evt) => {
+      console.log('**ICE CHANGE: ' + peerConnection.iceConnectionState);
+    };
+    peerConnection.onsignalingstatechange = (evt) => {
+      console.log('**SIGNAL CHANGE: ' + peerConnection.signalingState);
+    };
+
     peerConnection.onicecandidate = (evt) => {
       console.log('ice!');
       if (evt.candidate) {
+        const candidateStr = evt.candidate.candidate;
+
+        // Always eat TCP candidates. Not needed in this context.
+        if (candidateStr.indexOf('tcp') !== -1) {
+          console.log('NOPE');
+          return;
+        }
+
         const outMessage = {
           username: this._username,
           target: guestName,
-          candidate: evt.candidate,
+          label: event.candidate.sdpMLineIndex,
+          id: event.candidate.sdpMid,
+          candidate: evt.candidate.candidate,
           action: 'ice'
+        };
+        this._socket.send(JSON.stringify(outMessage));
+      } else {
+        console.log('done');
+        const outMessage = {
+          username: this._username,
+          target: guestName,
+          action: 'ice-complete'
         };
         this._socket.send(JSON.stringify(outMessage));
       }

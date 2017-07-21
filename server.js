@@ -119,6 +119,7 @@ wss.on('connection', function connection(ws, req) {
         onUserLook(ws, messageInfo);
         break;
       case 'ice':
+      case 'ice-complete':
       case 'signal':
       case 'sdp-offer':
       case 'sdp-answer':
