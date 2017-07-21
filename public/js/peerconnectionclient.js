@@ -1,4 +1,9 @@
-var PeerConnectionClient = function() {
+let trace = console.log;
+let parseJSON = JSON.parse;
+var PeerConnectionClient = function(socket, username) {
+  this._socket = socket;
+  this._username = null;
+
   var configuration = {
   	'iceServers': [
       {
@@ -19,8 +24,6 @@ var PeerConnectionClient = function() {
   this.pc_ = new RTCPeerConnection(configuration);
       console.log('HAAAAAAAAAAAAAAY');
   this.pc_.onicecandidate = this.onIceCandidate_.bind(this);
-  this.pc_.ontrack = this.onRemoteStreamAdded_.bind(this);
-  this.pc_.onremovestream = trace.bind(null, 'Remote stream removed.');
   this.pc_.onsignalingstatechange = this.onSignalingStateChanged_.bind(this);
   this.pc_.oniceconnectionstatechange =
       this.onIceConnectionStateChanged_.bind(this);
@@ -42,7 +45,15 @@ var PeerConnectionClient = function() {
   this.onremotehangup = null;
   this.onremotesdpset = null;
   this.onremotestreamadded = null;
-  this.onsignalingmessage = null;
+  this.onsignalingmessage = (message) => {
+    message.username = this.isInitiator_ ? 'caller' : 'callee';
+    message.target = this.isInitiator_ ? 'callee' : 'caller';
+    console.log('sending message:');
+    console.log(message);
+    console.log('---');
+
+    this._socket.send(JSON.stringify(message));
+  };
   this.onsignalingstatechange = null;
 };
 
@@ -71,14 +82,10 @@ PeerConnectionClient.prototype.startAsCaller = function(offerOptions) {
   }
 
   this.isInitiator_ = true;
-  this.setupCallstats_();
+  this._username = 'caller';
   this.started_ = true;
-  var constraints = mergeConstraints(
-      PeerConnectionClient.DEFAULT_SDP_OFFER_OPTIONS_, offerOptions);
 
-  trace('Sending offer to peer, with constraints: \n\'' +
-      JSON.stringify(constraints) + '\'.');
-  this.pc_.createOffer(constraints)
+  this.pc_.createOffer()
       .then(this.setLocalSdpAndNotify_.bind(this))
       .catch(this.onError_.bind(this, 'createOffer'));
 
@@ -95,7 +102,7 @@ PeerConnectionClient.prototype.startAsCallee = function(initialMessages) {
   }
 
   this.isInitiator_ = false;
-  this.setupCallstats_();
+  this._username = 'callee';
   this.started_ = true;
 
   if (initialMessages && initialMessages.length > 0) {
@@ -116,8 +123,14 @@ PeerConnectionClient.prototype.startAsCallee = function(initialMessages) {
 };
 
 PeerConnectionClient.prototype.receiveSignalingMessage = function(message) {
-  var messageObj = parseJSON(message);
+  var messageObj = message;
   if (!messageObj) {
+    return;
+  }
+  console.log('received!!');
+  console.log(messageObj);
+  if (messageObj.target !== this._username) {
+    console.log('ignoring');
     return;
   }
   if ((this.isInitiator_ && messageObj.type === 'answer') ||
@@ -131,6 +144,8 @@ PeerConnectionClient.prototype.receiveSignalingMessage = function(message) {
     if (this.onremotehangup) {
       this.onremotehangup();
     }
+  } else {
+    console.log('ignoring 2');
   }
   this.drainMessageQueue_();
 };
@@ -160,7 +175,8 @@ PeerConnectionClient.prototype.setLocalSdpAndNotify_ =
       if (this.onsignalingmessage) {
         this.onsignalingmessage({
           sdp: sessionDescription.sdp,
-          type: sessionDescription.type
+          type: sessionDescription.type,
+          action: sessionDescription.type === 'offer' ? 'sdp-offer' : 'sdp-answer'
         });
       }
     };
@@ -200,7 +216,6 @@ PeerConnectionClient.prototype.processSignalingMessage_ = function(message) {
     console.log(candidate);
     console.log('---------------------');
     console.log(candidate);
-    this.recordIceCandidate_('Remote', candidate);
     this.pc_.addIceCandidate(candidate)
         .then(trace.bind(null, 'Remote candidate added successfully.'))
         .catch(this.onError_.bind(this, 'addIceCandidate'));
@@ -235,6 +250,7 @@ PeerConnectionClient.prototype.onIceCandidate_ = function(event) {
     // Eat undesired candidates.
     if (this.filterIceCandidate_(event.candidate)) {
       var message = {
+        action: 'ice',
         type: 'candidate',
         label: event.candidate.sdpMLineIndex,
         id: event.candidate.sdpMid,
@@ -243,7 +259,6 @@ PeerConnectionClient.prototype.onIceCandidate_ = function(event) {
       if (this.onsignalingmessage) {
         this.onsignalingmessage(message);
       }
-      this.recordIceCandidate_('Local', event.candidate);
     }
   } else {
     trace('End of candidates.');

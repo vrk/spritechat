@@ -62,14 +62,21 @@ class Game {
 
       if (!this.peerConnectionManager) {
         const createdParty = Object.keys(this.others).length === 0;
-        this.peerConnectionManager =
-            new DataChannelManager(this._socket, this._username, createdParty, this.onNewDataChannel);
+        this.peerConnectionManager = new PeerConnectionClient(this._socket, this._username);
+        if (createdParty) {
+          this.peerConnectionManager.startAsCaller();
+        } else {
+          this.peerConnectionManager.startAsCallee();
+        }
       }
 
     } else if (message.action === 'announce-exit') {
       delete this.others[message.username];
       console.log(`${message.username} has left`);
-      this.peerConnectionManager.remove(message.username);
+      // this.peerConnectionManager.remove(message.username);
+    }
+    if (this.peerConnectionManager) {
+      this.peerConnectionManager.receiveSignalingMessage(message);
     }
   }
 

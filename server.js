@@ -36,6 +36,7 @@ const onUserEnter = (ws, messageInfo) => {
     username
   }
   broadcastMessage(announceEnter);
+  drainStored();
 };
 
 const broadcastMessage = (message) => {
@@ -63,7 +64,24 @@ const onUserLook = (ws, message) => {
   broadcastMessage(message);
 };
 
+const drainStored = (ws) => {
+  while(stored.length > 0) {
+    const message = stored.shift();
+    wss.clients.forEach(function each(client) {
+      client.send(JSON.stringify(message));
+    });
+  }
+}
+
+const stored = [];
 const onSignalling = (ws, message) => {
+  console.log(Object.keys(users).length);
+  if (Object.keys(users).length < 2) {
+    console.log('storing message for next user');
+    stored.push(message);
+    return;
+  }
+
   wss.clients.forEach(function each(client) {
     console.log(`sending ${ws.username}'s message to ${client.username}`);
     if (client.username !== ws.username) {
@@ -105,6 +123,7 @@ wss.on('connection', function connection(ws, req) {
 
   ws.on('message', function (data) {
     const messageInfo = JSON.parse(data);
+    console.log(messageInfo);
     switch (messageInfo.action) {
       case 'enter':
         onUserEnter(ws, messageInfo);
