@@ -1,35 +1,11 @@
-.hidden {
-  display: none;
-}
-
 body {
   margin: 0;
-}
-
-#menu {
-  margin: 10px;
-}
-
-#room {
-  display: flex;
-  height: 100vh;
-
-  flex-direction: column;
-}
-
-#room > div {
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-}
-
-#room p {
-  margin: 5px;
-}
-
-#message-form {
-  padding: 10px;
+  flex-grow: 0;
+  align-items: center;
+  justify-content: center;
+  height: 90vh;
 }
 
 #foreground,
