@@ -14,6 +14,9 @@ class Character {
       case MOVE_RIGHT:
         this.sprite = this.rightSprite;
       break;
+      case DANCE:
+        this.sprite = this.danceSprite || this.downSprite;
+      break;
     }
     this.sprite.update();
   }
@@ -46,6 +49,7 @@ class Boss extends Character {
     this.upSprite = new Sprite(context, 36, 34, 148, 64, 4, image);
     this.leftSprite = new Sprite(context, 34, 34, 3+142, 64+34, 4, image);
     this.rightSprite = new Sprite(context, 34, 34, 3, 64+34, 4, image);
+    this.danceSprite = new Sprite(context, 36, 34, 2, 244 + 72, 10, image);
   }
 }
 
@@ -59,5 +63,6 @@ class Bijou extends Character {
     this.upSprite = new Sprite(context, 37, 34, 2, 64+74, 4, bijouImage);
     this.leftSprite = new Sprite(context, 32, 34, 2+296, 64+37, 4, bijouImage);
     this.rightSprite = new Sprite(context, 32, 34, 2, 64+37, 4, bijouImage);
+    this.danceSprite = new Sprite(context, 36, 38, 2, 244+4, 5, bijouImage);
   }
 }

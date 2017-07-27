@@ -26,8 +26,8 @@ class Game {
     this.others = {};
     this.world = new World(this.backContext);
 
-    // const danceButton = document.querySelector('#dance-button');
-    // danceButton.addEventListener('click', this._onDanceClick);
+    const danceButton = document.querySelector('#dance-button');
+    danceButton.addEventListener('click', this._onDanceClick);
 
     const lookButton = document.querySelector('#look-button');
     lookButton.addEventListener('click', this._onLookClick);

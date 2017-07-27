@@ -77,7 +77,8 @@ class Player extends BasePlayer {
   }
 
   dance() {
-
+    this.direction = DANCE;
+    this.needsUpdate = true;
   }
 
   // Private

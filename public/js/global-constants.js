@@ -2,6 +2,7 @@ const MOVE_DOWN = 'down';
 const MOVE_UP = 'up';
 const MOVE_LEFT = 'left';
 const MOVE_RIGHT = 'right';
+const DANCE = 'dance';
 
 const TILE_SIZE = 16;
 const HALF_TILE_SIZE = TILE_SIZE / 2;
