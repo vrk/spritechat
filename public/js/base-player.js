@@ -16,14 +16,14 @@ class BasePlayer {
   update() {
     this.x += this.xVelocity;
     if (this.x > CANVAS_WIDTH) {
-      this.x = 0;
+      this.x = -30;
     }
     if (this.x < -30) {
       this.x = CANVAS_WIDTH;
     }
     this.y += this.yVelocity;
     if (this.y > CANVAS_HEIGHT) {
-      this.y = 0;
+      this.y = -30;
     }
     if (this.y < -30) {
       this.y = CANVAS_HEIGHT;
