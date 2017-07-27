@@ -1,5 +1,10 @@
 body {
   margin: 0;
+  font-family: monospace;
+  font-size: 24pt;
+}
+
+section {
   display: flex;
   flex-direction: column;
   flex-grow: 0;
@@ -30,4 +35,8 @@ body {
   font-family: monospace;
   margin: 5px;
   font-size: 20px;
+}
+
+.hidden {
+  display: none;
 }

@@ -21,6 +21,10 @@ class Game {
     this.backCanvas.height = CANVAS_HEIGHT;
     this.backContext = this.backCanvas.getContext('2d');
 
+    this.loaded = false;
+    this.loadingScreen = document.querySelector('#loading');
+    this.mainScreen = document.querySelector('#main');
+
     this._socket = socket;
     this.player = new Player(this.context, socket);
     this.others = {};
@@ -61,6 +65,8 @@ class Game {
         this.peerConnectionManager = new PeerConnectionsManager(this._socket, this.onNewDataChannel);
         if (!createdParty) {
           this.peerConnectionManager.askForCallInvite(Object.keys(this.others), this._username);
+        } else {
+          this.showWorld();
         }
       }
 
@@ -79,10 +85,20 @@ class Game {
     }
   }
 
+  showWorld() {
+    if (this.loaded) {
+      return;
+    }
+
+    this.loadingScreen.classList.add('hidden');
+    this.mainScreen.classList.remove('hidden');
+    this.loaded = true;
+  }
+
   onNewDataChannel(channel) {
-    console.log('new channel');
     this.player.setDataChannel(channel);
     channel.onmessage = (event) => {
+      this.showWorld();
       const message = JSON.parse(event.data);
       for (const playerName in this.others) {
         const otherPlayer = this.others[playerName];
