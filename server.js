@@ -124,10 +124,10 @@ wss.on('connection', function connection(ws, req) {
       case 'signal':
       case 'sdp-offer':
       case 'sdp-answer':
-      console.log('---');
-        console.log('action: ' +messageInfo.action);
-        console.log('target: ' +messageInfo.target);
-        console.log('sender: ' +messageInfo.username);
+        console.log('---');
+        console.log('action: ' + messageInfo.action);
+        console.log('target: ' + messageInfo.target);
+        console.log('sender: ' + messageInfo.username);
         onSignalling(ws, messageInfo);
         break;
       default:
