@@ -1,7 +1,7 @@
 class App {
   constructor() {
     const url = location.hostname === 'localhost' ?
-        'ws://localhost:8080' : `wss://${location.hostname}`;
+        'ws://localhost:9000' : `wss://${location.hostname}`;
     this._socket = new WebSocket(url);
 
     this._socket.addEventListener('open', (event) => {

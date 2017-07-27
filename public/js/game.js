@@ -45,6 +45,7 @@ class Game {
   }
 
   _onReceiveServerMessage(event) {
+    const createdParty = Object.keys(this.others).length === 0;
     const message = JSON.parse(event.data);
     if (message.action === 'entered') {
       this._username = message.username;
@@ -54,26 +55,24 @@ class Game {
           this.others[playerName] = new OtherPlayer(this.context, this._socket, playerName, playerInfo.x, playerInfo.y, playerInfo.selectedCharacter);
         }
       }
-    } if (message.action === 'announce-enter') {
-      if (message.username !== this._username) {
-        this.others[message.username] = new OtherPlayer(this.context, this._socket, message.username);
-      }
-      console.log(`${message.username} has entered`);
+    } else if (message.action === 'announce-enter') {
 
       if (!this.peerConnectionManager) {
-        const createdParty = Object.keys(this.others).length === 0;
-        this.peerConnectionManager = new PeerConnectionClient(this._socket, this._username);
-        if (createdParty) {
-          this.peerConnectionManager.startAsCaller();
-        } else {
-          this.peerConnectionManager.startAsCallee();
+        this.peerConnectionManager = new PeerConnectionsManager(this._socket, this.onNewDataChannel);
+        if (!createdParty) {
+          this.peerConnectionManager.askForCallInvite(Object.keys(this.others), this._username);
         }
       }
 
+      if (message.username !== this._username) {
+        this.others[message.username] = new OtherPlayer(this.context, this._socket, message.username);
+        this.peerConnectionManager.sendCallToNewGuest(message.username, this._username);
+      }
+      console.log(`${message.username} has entered`);
     } else if (message.action === 'announce-exit') {
       delete this.others[message.username];
       console.log(`${message.username} has left`);
-      // this.peerConnectionManager.remove(message.username);
+      this.peerConnectionManager.close(message.username);
     }
     if (this.peerConnectionManager) {
       this.peerConnectionManager.receiveSignalingMessage(message);
