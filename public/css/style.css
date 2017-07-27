@@ -22,3 +22,12 @@ body {
 #world-container {
   position: relative;
 }
+
+#controls button {
+  background-color: slateblue;
+  border: 2px solid darkslateblue;
+  color: white;
+  font-family: monospace;
+  margin: 5px;
+  font-size: 20px;
+}
