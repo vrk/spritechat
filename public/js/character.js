@@ -19,7 +19,7 @@ class Character {
         chosen = this.danceSprite || this.downSprite;
       break;
     }
-    if (chosen !== this.sprite) {
+    if (chosen && chosen !== this.sprite) {
       this.sprite = chosen;
     }
     this.sprite.update();

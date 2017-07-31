@@ -49,6 +49,7 @@ class Player extends BasePlayer {
         direction: this.direction,
         xVelocity: this.xVelocity,
         yVelocity: this.yVelocity,
+        selectedCharacter: this.selectedCharacter,
         x: this.x,
         y: this.y
       };

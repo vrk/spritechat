@@ -12,8 +12,7 @@ class OtherPlayer extends BasePlayer {
       this.goalXVelocity = message.xVelocity;
       this.goalYVelocity = message.yVelocity;
       this.goalDirection = message.direction;
-
-
+      this.selectedCharacter = message.selectedCharacter;
     } else if (message.action === 'look' && message.username === this._username) {
       this.selectedCharacter = message.selectedCharacter;
     }

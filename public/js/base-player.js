@@ -9,6 +9,7 @@ class BasePlayer {
     this.context = context;
     this.characters = [new Bijou(context), new Boss(context)];
     this.selectedCharacter = selectedCharacter;
+    console.log("SELECTED CHARACTER: " + selectedCharacter);
     this.direction = initialDir;
     this.dataChannels = [];
   }
