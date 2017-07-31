@@ -23,6 +23,8 @@ class OtherPlayer extends BasePlayer {
     const xDelta = this.goalX - this.x;
     const yDelta = this.goalY - this.y;
 
+    this.direction = this.goalDirection;
+
     const forceMoveRight = xDelta < -CANVAS_WIDTH / 2;
     const forceMoveLeft = xDelta > CANVAS_WIDTH / 2;
     if (forceMoveLeft || (xDelta < 0 && !forceMoveRight)) {
