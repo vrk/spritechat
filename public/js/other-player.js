@@ -23,25 +23,27 @@ class OtherPlayer extends BasePlayer {
     const xDelta = this.goalX - this.x;
     const yDelta = this.goalY - this.y;
 
-    if (xDelta < 0) {
+    if (xDelta < 0 || xDelta > CANVAS_WIDTH / 2) {
       // Need to move left to get to goal.
       this.direction = MOVE_LEFT;
       this.x -= PLAYER_PX_UPDATES_PER_TICK;
-    } else if (xDelta > 0) {
+    } else if (xDelta > 0 || xDelta < -CANVAS_WIDTH / 2) {
       // Need to move right to get to goal.
       this.direction = MOVE_RIGHT;
       this.x += PLAYER_PX_UPDATES_PER_TICK;
     }
 
-    if (yDelta < 0) {
+    if (yDelta < 0 || yDelta > CANVAS_HEIGHT / 2) {
       // Need to move up to get to goal.
       this.direction = MOVE_UP;
       this.y -= PLAYER_PX_UPDATES_PER_TICK;
-    } else if (yDelta > 0) {
+    } else if (yDelta > 0 || yDelta < -CANVAS_HEIGHT / 2) {
       // Need to move down to get to goal.
       this.direction = MOVE_DOWN;
       this.y += PLAYER_PX_UPDATES_PER_TICK;
     }
+
+    this.updateWrapAround();
 
     this.characters[this.selectedCharacter].update(this.direction);
   }

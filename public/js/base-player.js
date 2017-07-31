@@ -13,21 +13,25 @@ class BasePlayer {
     this.dataChannels = [];
   }
 
-  update() {
-    this.x += this.xVelocity;
+  updateWrapAround() {
     if (this.x > CANVAS_WIDTH) {
       this.x = -30;
     }
     if (this.x < -30) {
       this.x = CANVAS_WIDTH;
     }
-    this.y += this.yVelocity;
     if (this.y > CANVAS_HEIGHT) {
       this.y = -30;
     }
     if (this.y < -30) {
       this.y = CANVAS_HEIGHT;
     }
+  }
+
+  update() {
+    this.x += this.xVelocity;
+    this.y += this.yVelocity;
+    this.updateWrapAround();
     this.characters[this.selectedCharacter].update(this.direction);
   }
 
