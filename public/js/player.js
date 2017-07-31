@@ -35,7 +35,12 @@ class Player extends BasePlayer {
   }
 
   update() {
+    const prevX = this.x;
+    const prevY = this.y;
+
     super.update();
+
+    this.needsUpdate |= prevX !== this.x || prevY !== this.y;
     if (this.needsUpdate) {
       this.needsUpdate = false;
       const outMessage = {
@@ -85,8 +90,8 @@ class Player extends BasePlayer {
   onKeyDown(event) {
     const key = event.key;
 
-    const prevX = this.xVelocity;
-    const prevY = this.yVelocity;
+    const prevX = this.x;
+    const prevY = this.y;
     const prevDir = this.direction;
 
     if (key === 'ArrowLeft') {
@@ -106,7 +111,7 @@ class Player extends BasePlayer {
       this.arrowsPressed.push(key);
       this.direction = MOVE_UP;
     }
-    this.needsUpdate |= prevX !== this.xVelocity || prevY !== this.yVelocity || prevDir !== this.direction;
+    this.needsUpdate |= prevX !== this.x || prevY !== this.y || prevDir !== this.direction;
   }
 
   onKeyUp(event) {

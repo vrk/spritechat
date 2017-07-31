@@ -32,7 +32,7 @@ class PeerConnectionClient {
     this.pc_.onsignalingstatechange = this.onSignalingStateChanged_.bind(this);
     this.pc_.oniceconnectionstatechange = this.onIceConnectionStateChanged_.bind(this);
 
-    const dataChannelOptions = { ordered: true };
+    const dataChannelOptions = { ordered: false };
     this.dataChannel_ = this.pc_.createDataChannel('sendData', dataChannelOptions);
 
     this.pc_.ondatachannel = (event) => {
