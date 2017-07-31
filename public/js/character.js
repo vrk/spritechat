@@ -1,22 +1,26 @@
 // Base class
 class Character {
   update(direction) {
+    let chosen = null;
     switch (direction) {
       case MOVE_DOWN:
-        this.sprite = this.downSprite;
+        chosen = this.downSprite;
       break;
       case MOVE_UP:
-        this.sprite = this.upSprite;
+        chosen = this.upSprite;
       break;
       case MOVE_LEFT:
-        this.sprite = this.leftSprite;
+        chosen = this.leftSprite;
       break;
       case MOVE_RIGHT:
-        this.sprite = this.rightSprite;
+        chosen = this.rightSprite;
       break;
       case DANCE:
-        this.sprite = this.danceSprite || this.downSprite;
+        chosen = this.danceSprite || this.downSprite;
       break;
+    }
+    if (chosen !== this.sprite) {
+      this.sprite = chosen;
     }
     this.sprite.update();
   }
